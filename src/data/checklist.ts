@@ -55,7 +55,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'environment-odor',
     kind: 'choice',
     category: '环境',
-    weight: 4,
+    weight: 5,
     title: '房间整体异味等级',
     how: '进门后先不要说话，安静站立约 20 秒，分别闻房间主体、柜体、床边和卫生间门口。',
     why: '异味需要分级判断，轻微可接受，但无法接受的强烈异味应直接放弃。',
@@ -91,7 +91,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'environment-noise',
     kind: 'status',
     category: '环境',
-    weight: 3,
+    weight: 4,
     title: '夜间噪音风险是否可接受',
     how: '关上门窗后安静站立约 20 秒，听是否能清楚听见楼道、电梯、主路或邻居噪音。',
     why: '噪音会长期影响睡眠和休息。'
@@ -109,7 +109,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'environment-building',
     kind: 'status',
     category: '环境',
-    weight: 1.5,
+    weight: 1,
     title: '楼道与公共区域卫生是否过关',
     how: '观察电梯口、楼道、门口垃圾和扶手区域，是否长期堆物、脏乱或有明显污渍。',
     why: '公共区域状态通常能反映整体维护水平。'
@@ -118,7 +118,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'environment-surrounding',
     kind: 'status',
     category: '环境',
-    weight: 3,
+    weight: 3.5,
     title: '周边是否有明显油烟、垃圾站或异味源',
     how: '在窗边和楼下停留片刻，观察是否紧邻餐饮后厨、垃圾点或持续异味来源。',
     why: '外部异味和油烟对居住体验影响很大，也不容易靠室内清洁解决。'
@@ -128,7 +128,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'room-light',
     kind: 'status',
     category: '房间',
-    weight: 2,
+    weight: 1.5,
     title: '采光是否充足',
     how: '白天拉开窗帘，站在房间中间看是否需要立刻开灯才能看清环境。',
     why: '自然光差会明显影响居住舒适度。'
@@ -137,16 +137,16 @@ export const checklistItems: ChecklistItem[] = [
     id: 'room-sun',
     kind: 'status',
     category: '房间',
-    weight: 1.5,
-    title: '是否存在明显西晒风险',
-    how: '询问朝向并站到窗边感受日照，下午看房时尤其注意是否有强烈直晒。',
-    why: '西晒会让房间夏天更热，空调成本更高。'
+    weight: 4,
+    title: '房屋朝向是否兼顾采光与冬季保暖',
+    how: '询问房屋朝向并观察窗面方向，判断是否长期偏阴、冬天可能过冷，或夏天极端暴晒。',
+    why: '朝向会长期影响采光、通风、冬季保暖和整体体感，属于居住体验的底层条件。'
   },
   {
     id: 'room-window',
     kind: 'status',
     category: '房间',
-    weight: 3,
+    weight: 2.5,
     title: '窗户开合与密封是否正常',
     how: '手动开关窗户一次，感受是否费力、松动，关闭后看边缘是否有明显缝隙。',
     why: '窗户问题会影响通风、噪音和下雨天渗水风险。'
@@ -155,7 +155,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'room-wall',
     kind: 'status',
     category: '房间',
-    weight: 2,
+    weight: 1.5,
     title: '墙面与顶面是否有明显裂纹或起皮',
     how: '看床头、窗边和天花板四角，是否有大面积开裂、起皮或补漆痕迹。',
     why: '表面状态差往往意味着维护不到位。'
@@ -183,7 +183,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'furniture-mattress',
     kind: 'status',
     category: '家具',
-    weight: 5,
+    weight: 5.5,
     title: '床垫是否明显塌陷',
     how: '坐下再起身一次，观察床垫是否明显下陷且回弹很差。',
     why: '床垫状态会长期影响睡眠和腰背舒适度。'
@@ -192,7 +192,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'furniture-wardrobe',
     kind: 'status',
     category: '家具',
-    weight: 3,
+    weight: 2.5,
     title: '衣柜是否配置且能正常使用',
     how: '打开柜门并看内部，确认有无柜体、是否卡顿、门板是否歪斜。',
     why: '衣柜缺失或损坏会影响日常收纳。'
@@ -201,7 +201,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'furniture-desk',
     kind: 'status',
     category: '家具',
-    weight: 3,
+    weight: 2,
     title: '书桌是否配置且尺寸够用',
     how: '观察桌面是否能放下电脑和基本物品，并轻按桌角确认是否稳固。',
     why: '桌子属于可替代项，但过小或不稳会影响办公和吃饭。'
@@ -210,7 +210,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'furniture-chair',
     kind: 'status',
     category: '家具',
-    weight: 2,
+    weight: 1,
     title: '椅子是否配置且稳固',
     how: '轻压椅背或短暂坐下，确认椅脚是否晃动、椅面是否明显不平。',
     why: '椅子虽然不是最高优先级，但长期缺失也会影响使用。'
@@ -239,10 +239,10 @@ export const checklistItems: ChecklistItem[] = [
     id: 'appliance-fridge-position',
     kind: 'choice',
     category: '家电',
-    weight: 1.5,
+    weight: 3.5,
     title: '冰箱摆放位置是否合理',
     how: '看冰箱实际放在哪里，重点留意是否紧挨睡眠区域。',
-    why: '冰箱压缩机长期工作，若放在卧室，噪音更容易影响休息。',
+    why: '冰箱压缩机长期工作，若放在卧室，噪音和震动都可能持续影响睡眠，权重应明显提高。',
     options: [
       {
         value: 'kitchen',
@@ -274,7 +274,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'appliance-heater-brand',
     kind: 'status',
     category: '家电',
-    weight: 1.5,
+    weight: 1,
     title: '热水器是否配置且属于常见品牌',
     brandReferences: COMMON_APPLIANCE_BRANDS,
     how: '查看热水器机身品牌，若不熟悉，建议用手机快速确认品牌信息。',
@@ -284,7 +284,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'appliance-heater-panel',
     kind: 'status',
     category: '家电',
-    weight: 1.5,
+    weight: 2,
     title: '热水器面板或指示灯是否正常',
     how: '看热水器显示面板、指示灯或开关状态，确认不是完全无反应。',
     why: '这是现场最容易做的热水器基础检查。'
@@ -303,7 +303,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'appliance-ac-cooling',
     kind: 'status',
     category: '家电',
-    weight: 2.5,
+    weight: 3,
     title: '空调是否能稳定制冷',
     how: '开启空调，设置较低温度，等待约 30 秒，感受是否有明显冷风吹出。',
     why: '空调制冷差会显著降低夏季体验，但不默认视为绝对否决。'
@@ -312,7 +312,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'appliance-washer-brand',
     kind: 'status',
     category: '家电',
-    weight: 1.5,
+    weight: 1,
     title: '洗衣机是否配置且属于常见品牌',
     brandReferences: COMMON_APPLIANCE_BRANDS,
     how: '查看洗衣机面板或机身标签的品牌标识，不认识的品牌建议现场搜索。',
@@ -331,7 +331,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'appliance-lights',
     kind: 'status',
     category: '家电',
-    weight: 1,
+    weight: 0.5,
     title: '灯具是否能正常点亮',
     how: '将房内常用灯具逐个打开，确认没有明显闪烁或完全不亮。',
     why: '照明问题虽然易修，但能直接反映维护情况。'
@@ -349,7 +349,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'appliance-network',
     kind: 'status',
     category: '家电',
-    weight: 2.5,
+    weight: 2,
     title: '网络或手机信号是否基本可用',
     how: '使用手机连接现有 Wi-Fi 或直接测试蜂窝网络，打开网页等待约 20 秒观察。',
     why: '基础网络可用性对生活和远程办公都很重要。'
@@ -359,7 +359,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'kitchen-hood',
     kind: 'status',
     category: '厨房',
-    weight: 2,
+    weight: 1.5,
     title: '油烟机是否能正常工作',
     how: '按下油烟机开关键，听是否有明显启动声，并观察是否能切换档位。',
     why: '油烟机是厨房基础设备，后续使用频率高。'
@@ -368,7 +368,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'kitchen-gas',
     kind: 'status',
     category: '厨房',
-    weight: 2.5,
+    weight: 2,
     title: '燃气灶是否能正常点火',
     how: '若房东允许，轻按旋钮测试点火，观察是否能正常打火并稳定燃烧。',
     why: '燃气灶关系到做饭便利性与安全性。'
@@ -386,7 +386,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'kitchen-sink',
     kind: 'status',
     category: '厨房',
-    weight: 1.5,
+    weight: 1,
     title: '水槽排水是否顺畅',
     how: '打开水龙头约 10 秒，再关掉，观察水槽是否能快速排空、没有明显积水。',
     why: '排水慢会让厨房更容易返味和积污。'
@@ -395,7 +395,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'kitchen-grease',
     kind: 'status',
     category: '厨房',
-    weight: 1,
+    weight: 0.5,
     title: '厨房是否存在明显油污',
     how: '看灶台、墙砖、油烟机外壳和橱柜把手，是否有厚重油渍或长期未清洁痕迹。',
     why: '明显油污说明交付前清洁质量较差。'
@@ -404,7 +404,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'kitchen-pest',
     kind: 'status',
     category: '厨房',
-    weight: 1.5,
+    weight: 2.5,
     title: '是否存在明显蟑螂或虫害痕迹',
     how: '看橱柜角落、水槽下方和墙角，是否有蟑螂尸体、黑色颗粒或虫卵痕迹。',
     why: '虫害处理周期长，入住后会非常麻烦。'
@@ -414,7 +414,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'bath-shower',
     kind: 'status',
     category: '卫生间',
-    weight: 2,
+    weight: 1.5,
     title: '花洒水压是否正常',
     how: '打开花洒约 10 秒，感受水流是否发散无力，冷热切换是否正常。',
     why: '花洒水压直接影响洗澡体验。'
@@ -450,7 +450,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'bath-basin-condition',
     kind: 'status',
     category: '卫生间',
-    weight: 1,
+    weight: 0.5,
     title: '洗手盆是否完好且使用顺手',
     how: '查看盆体是否有裂纹，再实际洗一下手，感受大小是否明显局促难用。',
     why: '洗手盆太小或有裂纹，日常使用会很不方便。'
@@ -459,10 +459,10 @@ export const checklistItems: ChecklistItem[] = [
     id: 'bath-drain-odor',
     kind: 'status',
     category: '卫生间',
-    weight: 1,
+    weight: 2,
     title: '地漏是否存在明显反味',
     how: '靠近地漏位置闻一下，再离开几步回头判断是否能闻到明显异味。',
-    why: '地漏反味会显著降低居住舒适度。'
+    why: '地漏反味会持续影响生活体验，严重时甚至会蔓延到睡眠区，权重应适当提高。'
   },
 
   {
@@ -487,7 +487,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'safety-peephole',
     kind: 'status',
     category: '安全',
-    weight: 1,
+    weight: 0.5,
     title: '猫眼或门外视野是否正常',
     how: '从猫眼向外看一次，确认视野清楚、无遮挡、装置没有损坏。',
     why: '门外可视能力是非常实用的安全细节。'
@@ -496,7 +496,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'safety-fire',
     kind: 'status',
     category: '安全',
-    weight: 2,
+    weight: 2.5,
     title: '烟感或灭火器等消防配置是否可见',
     how: '查看房内、走廊或厨房附近，是否能看到烟感、灭火器等基础消防配置。',
     why: '消防配置虽不常用，但关键时刻非常重要。'
@@ -515,7 +515,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'landlord-repair',
     kind: 'status',
     category: '房东',
-    weight: 1.5,
+    weight: 1,
     title: '房东是否愿意说明维修责任',
     how: '直接问空调、热水器、门锁等故障由谁维修，是否能明确回答。',
     why: '维修责任不清晰，入住后最容易扯皮。'
@@ -533,7 +533,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'landlord-inventory',
     kind: 'status',
     category: '房东',
-    weight: 1,
+    weight: 0.5,
     title: '是否能提供明确交付清单',
     how: '询问是否有家具电器清单或交付明细，确认不是口头含糊承诺。',
     why: '有交付清单更方便后续核对设备责任。'
