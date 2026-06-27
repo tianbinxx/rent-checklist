@@ -1,6 +1,10 @@
 <script setup lang="ts">
 defineProps<{
   scoreDisplay: string
+  qualityScoreDisplay: string
+  rentScoreDisplay: string
+  rentSummary: string
+  formulaText: string
   stars: string
   label: string
   description: string
@@ -27,6 +31,10 @@ defineProps<{
         {{ label }}
       </el-tag>
       <p>{{ description }}</p>
+      <p>看房质量：{{ qualityScoreDisplay }} 分</p>
+      <p>租金分：{{ rentScoreDisplay }} 分</p>
+      <p>{{ rentSummary }}</p>
+      <p>{{ formulaText }}</p>
     </div>
   </el-card>
 </template>

@@ -29,16 +29,18 @@ const resetForm = () => {
 
 const formatScore = (value: number) => (Number.isInteger(value) ? String(value) : value.toFixed(1))
 
+const getDisplayScore = (house: HouseRecord) => house.finalScore ?? house.inspectionScore
+
 const getScoreTagType = (score: number | null) => {
   if (score === null) {
     return 'info'
   }
 
-  if (score >= 90) {
+  if (score >= 85) {
     return 'success'
   }
 
-  if (score >= 70) {
+  if (score >= 65) {
     return 'warning'
   }
 
@@ -46,7 +48,7 @@ const getScoreTagType = (score: number | null) => {
 }
 
 const inspectedHouseCount = computed(
-  () => houses.value.filter((house) => house.inspectionScore !== null).length
+  () => houses.value.filter((house) => getDisplayScore(house) !== null).length
 )
 
 const openCreateDialog = () => {
@@ -63,6 +65,12 @@ const normalizeHousePayload = () => ({
   name: form.name.trim(),
   address: form.address.trim(),
   rent: form.rent.trim(),
+  budget: form.budget.trim(),
+  waterFee: form.waterFee.trim(),
+  electricFee: form.electricFee.trim(),
+  internetFee: form.internetFee.trim(),
+  sanitationFee: form.sanitationFee.trim(),
+  propertyFee: form.propertyFee.trim(),
   landlord: form.landlord.trim(),
   contact: form.contact.trim(),
   notes: form.notes.trim()
@@ -95,9 +103,18 @@ const startEditHouse = (house: HouseRecord) => {
     name: house.name,
     address: house.address,
     rent: house.rent,
+    budget: house.budget,
+    waterFee: house.waterFee,
+    electricFee: house.electricFee,
+    internetFee: house.internetFee,
+    sanitationFee: house.sanitationFee,
+    propertyFee: house.propertyFee,
     landlord: house.landlord,
     contact: house.contact,
     notes: house.notes,
+    qualityScore: house.qualityScore,
+    rentScore: house.rentScore,
+    finalScore: house.finalScore,
     inspectionScore: house.inspectionScore,
     inspectionRecommendation: house.inspectionRecommendation,
     inspectionAnsweredCount: house.inspectionAnsweredCount
@@ -210,22 +227,26 @@ const chooseHouse = (house: HouseRecord) => {
 
                 <div class="house-list-meta">
                   <span>月租：{{ house.rent || '未填写' }}</span>
+                  <span>目标月租：{{ house.budget || '未填写' }}</span>
                   <span>房东：{{ house.landlord || '未填写' }}</span>
-                  <span>联系：{{ house.contact || '未填写' }}</span>
                 </div>
               </div>
 
               <div class="house-score-block">
-                <span class="house-score-label">对比分数</span>
-                <template v-if="house.inspectionScore !== null">
-                  <strong :class="`tone-${getScoreTagType(house.inspectionScore)}`">
-                    {{ formatScore(house.inspectionScore) }}
+                <span class="house-score-label">综合总分</span>
+                <template v-if="getDisplayScore(house) !== null">
+                  <strong :class="`tone-${getScoreTagType(getDisplayScore(house))}`">
+                    {{ formatScore(getDisplayScore(house) ?? 0) }}
                   </strong>
-                  <el-tag :type="getScoreTagType(house.inspectionScore)" effect="light" round>
+                  <el-tag :type="getScoreTagType(getDisplayScore(house))" effect="light" round>
                     {{ house.inspectionRecommendation || '已检查' }}
                   </el-tag>
                   <span class="house-score-summary">
                     已处理 {{ house.inspectionAnsweredCount }}/{{  checklistItems.length }} 项
+                  </span>
+                  <span class="house-score-summary">
+                    质量 {{ house.qualityScore === null ? '--' : formatScore(house.qualityScore) }} /
+                    租金 {{ house.rentScore === null ? '--' : formatScore(house.rentScore) }}
                   </span>
                 </template>
                 <template v-else>
@@ -272,6 +293,33 @@ const chooseHouse = (house: HouseRecord) => {
               <el-input v-model="form.rent" placeholder="例如：4500 元/月" clearable />
             </el-form-item>
 
+            <el-form-item label="预算上限">
+              <el-input v-model="form.budget" placeholder="例如：5000 元/月" clearable />
+            </el-form-item>
+          </div>
+
+          <div class="house-form-split">
+            <el-form-item label="水费">
+              <el-input v-model="form.waterFee" placeholder="例如：80" clearable />
+            </el-form-item>
+            <el-form-item label="电费">
+              <el-input v-model="form.electricFee" placeholder="例如：150" clearable />
+            </el-form-item>
+          </div>
+
+          <div class="house-form-split">
+            <el-form-item label="网费">
+              <el-input v-model="form.internetFee" placeholder="例如：50" clearable />
+            </el-form-item>
+            <el-form-item label="卫生费">
+              <el-input v-model="form.sanitationFee" placeholder="例如：30" clearable />
+            </el-form-item>
+          </div>
+
+          <div class="house-form-split">
+            <el-form-item label="物业费">
+              <el-input v-model="form.propertyFee" placeholder="例如：100" clearable />
+            </el-form-item>
             <el-form-item label="房东">
               <el-input v-model="form.landlord" placeholder="填写房东姓名" clearable />
             </el-form-item>

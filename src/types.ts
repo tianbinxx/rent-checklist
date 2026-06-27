@@ -1,4 +1,4 @@
-export type StandardStatus = 'normal' | 'problem' | 'uncheckable' | 'missing'
+export type StandardStatus = 'normal' | 'minor' | 'major' | 'missing'
 export type ItemKind = 'status' | 'choice'
 export type ScoreTone = 'success' | 'warning' | 'danger'
 export type SelectionValue = string | null
@@ -8,37 +8,46 @@ export interface HouseRecord {
   name: string
   address: string
   rent: string
+  budget: string
+  waterFee: string
+  electricFee: string
+  internetFee: string
+  sanitationFee: string
+  propertyFee: string
   landlord: string
   contact: string
   notes: string
+  qualityScore: number | null
+  rentScore: number | null
+  finalScore: number | null
   inspectionScore: number | null
   inspectionRecommendation: string
   inspectionAnsweredCount: number
+  inspectionSelections: Record<string, SelectionValue>
+  inspectionVetoStates: Record<string, boolean>
 }
 
 export interface ChecklistItemBase {
   id: string
   category: string
   title: string
+  weight: number
   how: string
   why?: string
   brandReferences?: string[]
   keywords?: string[]
-  uncheckableScore?: number
-  missingScore?: number
-  supportsMissing?: boolean
 }
 
 export interface StatusChecklistItem extends ChecklistItemBase {
   kind: 'status'
-  score: number
 }
 
 export interface ChoiceChecklistOption {
   value: string
   label: string
-  score: number
+  factor: number
   description?: string
+  triggersVeto?: boolean
 }
 
 export interface ChoiceChecklistItem extends ChecklistItemBase {
@@ -64,4 +73,15 @@ export interface DeductionEntry {
   how: string
   why?: string
   isVeto?: boolean
+}
+
+export interface HouseInspectionSnapshot {
+  qualityScore: number | null
+  rentScore: number | null
+  finalScore: number | null
+  inspectionScore: number | null
+  inspectionRecommendation: string
+  inspectionAnsweredCount: number
+  inspectionSelections: Record<string, SelectionValue>
+  inspectionVetoStates: Record<string, boolean>
 }

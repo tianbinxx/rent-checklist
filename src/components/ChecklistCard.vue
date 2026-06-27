@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {
   CircleCheckFilled,
+  CircleCloseFilled,
   QuestionFilled,
   RemoveFilled,
   WarningFilled
@@ -40,13 +41,13 @@ const compactOptionMeta = {
     label: '正常',
     icon: CircleCheckFilled
   },
-  problem: {
-    label: '问题',
+  minor: {
+    label: '轻问题',
     icon: WarningFilled
   },
-  uncheckable: {
-    label: '待查',
-    icon: QuestionFilled
+  major: {
+    label: '大问题',
+    icon: CircleCloseFilled
   },
   missing: {
     label: '缺失',
@@ -61,61 +62,50 @@ const getOptionList = (item: ChecklistItem) => {
           value: option.value,
           label: option.label,
           description: option.description,
-          score: option.score
+          factor: option.factor
         }))
       : [
           {
             value: 'normal',
-            label: '正常',
-            description: '现场检查无明显问题',
-            score: 0
+            label: '完全正常',
+            description: `保留权重 ${formatScore(item.weight)} 分`,
+            factor: 1
           },
           {
-            value: 'problem',
-            label: '存在问题',
-            description: `扣 ${formatScore(item.score)} 分`,
-            score: item.score
+            value: 'minor',
+            label: '有一定问题',
+            description: `保留 ${formatScore(item.weight * 0.7)} / ${formatScore(item.weight)} 分`,
+            factor: 0.7
+          },
+          {
+            value: 'major',
+            label: '有很大问题',
+            description: `保留 ${formatScore(item.weight * 0.3)} / ${formatScore(item.weight)} 分`,
+            factor: 0.3
+          },
+          {
+            value: 'missing',
+            label: '缺失',
+            description: `该项得分 0 / ${formatScore(item.weight)} 分`,
+            factor: 0
           }
         ]
-
-  options.push({
-    value: 'uncheckable',
-    label: '无法检查',
-    description: `风险扣 ${formatScore(item.uncheckableScore ?? -1)} 分`,
-    score: item.uncheckableScore ?? -1
-  })
-
-  if (item.supportsMissing) {
-    options.push({
-      value: 'missing',
-      label: '物品缺失',
-      description: `缺失扣 ${formatScore(item.missingScore)} 分`,
-      score: item.missingScore ?? 0
-    })
-  }
 
   return options
 }
 
 const getScoreSummary = (item: ChecklistItem) => {
-  const segments = [`问题 -${formatScore(item.kind === 'status' ? item.score : 0)}`]
+  const segments = [`权重 ${formatScore(item.weight)} 分`]
 
-  if (item.kind === 'choice') {
-    const riskOption = [...item.options]
-      .sort((left, right) => Math.abs(right.score) - Math.abs(left.score))
-      .find((option) => option.score < 0)
-
-    if (riskOption) {
-      segments[0] = `最高扣分 -${formatScore(riskOption.score)}`
-    }
-  }
-
-  if (item.uncheckableScore) {
-    segments.push(`无法检查 -${formatScore(item.uncheckableScore)}`)
-  }
-
-  if (item.supportsMissing && item.missingScore) {
-    segments.push(`缺失 -${formatScore(item.missingScore)}`)
+  if (item.kind === 'status') {
+    segments.push(`轻问题保留 70%`)
+    segments.push(`大问题保留 30%`)
+    segments.push(`缺失记 0 分`)
+  } else {
+    const factorSummary = item.options
+      .map((option) => `${option.label} ${formatScore(option.factor * 100)}%`)
+      .join(' / ')
+    segments.push(factorSummary)
   }
 
   return segments
@@ -126,7 +116,7 @@ const getCompactButtonMeta = (item: ChecklistItem, value: string) => {
     return null
   }
 
-  if (item.kind === 'choice' && value !== 'uncheckable' && value !== 'missing') {
+  if (item.kind === 'choice') {
     return null
   }
 

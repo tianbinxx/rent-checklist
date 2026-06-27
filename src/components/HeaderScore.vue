@@ -6,6 +6,10 @@ const props = defineProps<{
   scoreColor: 'success' | 'warning' | 'danger'
   recommendation: string
   progressPercentage: number
+  qualityScoreDisplay: string
+  rentScoreDisplay: string
+  rentSummary: string
+  formulaText: string
   searchKeyword: string
   visibleItemCount: number
   answeredItemCount: number
@@ -48,7 +52,7 @@ const handleSearchInput = (value: string | number) => {
       </div>
 
       <div class="hero-score-panel">
-        <span class="hero-score-label">当前得分</span>
+        <span class="hero-score-label">综合总分</span>
         <strong class="hero-score-value">{{ props.scoreDisplay }}分</strong>
         <span
           class="hero-score-hint"
@@ -57,6 +61,12 @@ const handleSearchInput = (value: string | number) => {
           {{ props.recommendation }}
         </span>
       </div>
+    </div>
+
+    <div class="hero-footer">
+      <span>看房质量 {{ props.qualityScoreDisplay }} 分</span>
+      <span>租金分 {{ props.rentScoreDisplay }} 分</span>
+      <span>{{ props.rentSummary }}</span>
     </div>
 
     <el-progress
@@ -78,11 +88,10 @@ const handleSearchInput = (value: string | number) => {
 
     <div class="progress-labels">
       <span>100</span>
-      <span>90</span>
       <span>85</span>
-      <span>72</span>
+      <span>75</span>
       <span>60</span>
-      <span>{{ props.scoreDisplay }}</span>
+      <span>0</span>
     </div>
 
     <div class="toolbar">
@@ -109,7 +118,11 @@ const handleSearchInput = (value: string | number) => {
 
     <div class="hero-footer">
       <span>当前可见 {{ props.visibleItemCount }} 项，已处理 {{ props.answeredItemCount }}/{{ props.totalItemCount }}</span>
-      <span>状态切换后实时计算，无需手动提交</span>
+      <span>状态与月租目标变更后实时计算，无需手动提交</span>
+    </div>
+
+    <div class="hero-footer">
+      <span>{{ props.formulaText }}</span>
     </div>
   </el-card>
 </template>

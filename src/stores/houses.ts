@@ -1,12 +1,23 @@
-﻿import { computed, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
-import type { HouseRecord } from '../types'
+import type { HouseInspectionSnapshot, HouseRecord } from '../types'
 
 const HOUSES_STORAGE_KEY = 'rental-checklist-houses'
 const SELECTED_HOUSE_STORAGE_KEY = 'rental-checklist-selected-house'
 type HouseFormPayload = Pick<
   HouseRecord,
-  'name' | 'address' | 'rent' | 'landlord' | 'contact' | 'notes'
+  | 'name'
+  | 'address'
+  | 'rent'
+  | 'budget'
+  | 'waterFee'
+  | 'electricFee'
+  | 'internetFee'
+  | 'sanitationFee'
+  | 'propertyFee'
+  | 'landlord'
+  | 'contact'
+  | 'notes'
 >
 type SaveHousePayload = HouseFormPayload | (HouseFormPayload & Pick<HouseRecord, 'id'>)
 
@@ -15,12 +26,23 @@ const createEmptyHouseDraft = (): Omit<HouseRecord, 'id'> => ({
   name: '',
   address: '',
   rent: '',
+  budget: '',
+  waterFee: '',
+  electricFee: '',
+  internetFee: '',
+  sanitationFee: '',
+  propertyFee: '',
   landlord: '',
   contact: '',
   notes: '',
+  qualityScore: null,
+  rentScore: null,
+  finalScore: null,
   inspectionScore: null,
   inspectionRecommendation: '',
-  inspectionAnsweredCount: 0
+  inspectionAnsweredCount: 0,
+  inspectionSelections: {},
+  inspectionVetoStates: {}
 })
 
 const parseStoredJson = <T>(value: string | null, fallback: T): T => {
@@ -35,11 +57,27 @@ const parseStoredJson = <T>(value: string | null, fallback: T): T => {
   }
 }
 
-const normalizeHouseRecord = (house: Partial<HouseRecord>): HouseRecord => ({
-  ...createEmptyHouseDraft(),
-  ...house,
-  id: house.id ?? createHouseId()
-})
+const normalizeHouseRecord = (house: Partial<HouseRecord>): HouseRecord => {
+  const normalized = {
+    ...createEmptyHouseDraft(),
+    ...house,
+    id: house.id ?? createHouseId()
+  }
+
+  const legacyHouse = house as Partial<HouseRecord> & {
+    costScore?: number | null
+  }
+
+  if (normalized.finalScore === null && normalized.inspectionScore !== null) {
+    normalized.finalScore = normalized.inspectionScore
+  }
+
+  if (normalized.rentScore === null && legacyHouse.costScore !== undefined) {
+    normalized.rentScore = legacyHouse.costScore ?? null
+  }
+
+  return normalized
+}
 
 const loadStoredHouses = () =>
   canUseStorage
@@ -133,7 +171,7 @@ export const deleteHouse = (id: string) => {
 
 export const updateHouseInspection = (
   id: string,
-  payload: Pick<HouseRecord, 'inspectionScore' | 'inspectionRecommendation' | 'inspectionAnsweredCount'>
+  payload: HouseInspectionSnapshot
 ) => {
   const currentIndex = houses.value.findIndex((house) => house.id === id)
 
@@ -143,9 +181,14 @@ export const updateHouseInspection = (
 
   const currentHouse = houses.value[currentIndex]
   const hasChanged =
+    currentHouse.qualityScore !== payload.qualityScore ||
+    currentHouse.rentScore !== payload.rentScore ||
+    currentHouse.finalScore !== payload.finalScore ||
     currentHouse.inspectionScore !== payload.inspectionScore ||
     currentHouse.inspectionRecommendation !== payload.inspectionRecommendation ||
-    currentHouse.inspectionAnsweredCount !== payload.inspectionAnsweredCount
+    currentHouse.inspectionAnsweredCount !== payload.inspectionAnsweredCount ||
+    JSON.stringify(currentHouse.inspectionSelections) !== JSON.stringify(payload.inspectionSelections) ||
+    JSON.stringify(currentHouse.inspectionVetoStates) !== JSON.stringify(payload.inspectionVetoStates)
 
   if (!hasChanged) {
     return
@@ -168,4 +211,3 @@ export const resetHouseStore = () => {
   window.localStorage.removeItem(HOUSES_STORAGE_KEY)
   window.localStorage.removeItem(SELECTED_HOUSE_STORAGE_KEY)
 }
-

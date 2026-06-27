@@ -4,6 +4,7 @@ import type { DeductionEntry } from '../types'
 defineProps<{
   entries: DeductionEntry[]
   totalDeductionDisplay: string
+  qualityScoreDisplay: string
   hasVeto: boolean
   vetoLabels: string[]
   answeredItemCount: number
@@ -17,11 +18,16 @@ defineProps<{
       <div class="section-header">
         <div>
           <h2>扣分明细</h2>
-          <p>所有扣分与风险项都会随着选择实时更新。</p>
+          <p>所有扣分、风险项和质量分都会随着选择实时更新。</p>
         </div>
-        <el-tag type="danger" effect="light" round>
-          总扣分 {{ totalDeductionDisplay }}
-        </el-tag>
+        <div>
+          <el-tag type="danger" effect="light" round>
+            总扣分 {{ totalDeductionDisplay }}
+          </el-tag>
+          <el-tag type="warning" effect="light" round>
+            质量分 {{ qualityScoreDisplay }}
+          </el-tag>
+        </div>
       </div>
     </template>
 
@@ -75,7 +81,7 @@ defineProps<{
           <p class="deduction-how">How：{{ entry.how }}</p>
           <p v-if="entry.why" class="deduction-why">Why：{{ entry.why }}</p>
         </div>
-        <strong>-{{ entry.deduction }}</strong>
+        <strong>{{ entry.isVeto ? '否决' : `-${entry.deduction}` }}</strong>
       </div>
     </div>
   </el-card>

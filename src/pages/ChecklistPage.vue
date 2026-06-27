@@ -2,7 +2,7 @@
 import { computed, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { baseScore, checklistItems, vetoItems } from '../data/checklist'
+import { baseScore, checklistItems, qualityWeight, rentWeight, vetoItems } from '../data/checklist'
 import ChecklistCard from '../components/ChecklistCard.vue'
 import DeductionPanel from '../components/DeductionPanel.vue'
 import FinalResult from '../components/FinalResult.vue'
@@ -12,19 +12,25 @@ import type {
   ChecklistItem,
   DeductionEntry,
   ScoreTone,
-  SelectionValue
+  SelectionValue,
+  StandardStatus
 } from '../types'
 
 const router = useRouter()
 const searchKeyword = ref('')
 
-const itemSelections = reactive<Record<string, SelectionValue>>(
-  Object.fromEntries(checklistItems.map((item) => [item.id, null]))
-) as Record<string, SelectionValue>
+const createEmptySelectionState = () =>
+  Object.fromEntries(checklistItems.map((item) => [item.id, null])) as Record<string, SelectionValue>
 
-const vetoStates = reactive<Record<string, boolean>>(
-  Object.fromEntries(vetoItems.map((item) => [item.id, false]))
-) as Record<string, boolean>
+const createEmptyVetoState = () =>
+  Object.fromEntries(vetoItems.map((item) => [item.id, false])) as Record<string, boolean>
+
+const itemSelections = reactive<Record<string, SelectionValue>>(createEmptySelectionState()) as Record<
+  string,
+  SelectionValue
+>
+
+const vetoStates = reactive<Record<string, boolean>>(createEmptyVetoState()) as Record<string, boolean>
 
 const categoryOrder = [...new Set(checklistItems.map((item) => item.category))]
 
@@ -32,11 +38,35 @@ const collapsedMap = reactive<Record<string, boolean>>(
   Object.fromEntries(categoryOrder.map((category) => [category, false]))
 ) as Record<string, boolean>
 
+const normalLevelFactorMap: Record<StandardStatus, number> = {
+  normal: 1,
+  minor: 0.7,
+  major: 0.3,
+  missing: 0
+}
+
 const normalizeText = (value: string) => value.trim().toLowerCase()
 
-const getAbsoluteScore = (value?: number) => Math.abs(value ?? 0)
+const parseAmount = (value: string | null | undefined) => {
+  if (!value) {
+    return null
+  }
 
-const formatScore = (value: number) => {
+  const normalized = value.replace(/[^\d.]/g, '')
+
+  if (!normalized) {
+    return null
+  }
+
+  const parsed = Number(normalized)
+  return Number.isFinite(parsed) ? parsed : null
+}
+
+const formatScore = (value: number | null) => {
+  if (value === null) {
+    return '--'
+  }
+
   if (Number.isInteger(value)) {
     return String(value)
   }
@@ -46,19 +76,19 @@ const formatScore = (value: number) => {
 
 const getSelectionLabel = (item: ChecklistItem, selection: SelectionValue) => {
   if (selection === 'normal') {
-    return '正常'
+    return '完全正常'
   }
 
-  if (selection === 'problem') {
-    return '存在问题'
+  if (selection === 'minor') {
+    return '有一定问题'
   }
 
-  if (selection === 'uncheckable') {
-    return '无法检查'
+  if (selection === 'major') {
+    return '有很大问题'
   }
 
   if (selection === 'missing') {
-    return '物品缺失'
+    return '缺失'
   }
 
   if (item.kind === 'choice') {
@@ -68,30 +98,40 @@ const getSelectionLabel = (item: ChecklistItem, selection: SelectionValue) => {
   return '未处理'
 }
 
+const getSelectedChoiceOption = (item: ChecklistItem, selection: SelectionValue) =>
+  item.kind === 'choice'
+    ? item.options.find((option) => option.value === selection) ?? null
+    : null
+
+const isVetoSelection = (item: ChecklistItem, selection: SelectionValue) =>
+  Boolean(getSelectedChoiceOption(item, selection)?.triggersVeto)
+
+const getItemScore = (item: ChecklistItem, selection: SelectionValue) => {
+  if (!selection) {
+    return null
+  }
+
+  if (item.kind === 'status') {
+    return Number((item.weight * normalLevelFactorMap[selection as StandardStatus]).toFixed(3))
+  }
+
+  const option = getSelectedChoiceOption(item, selection)
+
+  if (!option) {
+    return null
+  }
+
+  return Number((item.weight * option.factor).toFixed(3))
+}
+
 const getDeductionForSelection = (item: ChecklistItem, selection: SelectionValue) => {
-  if (!selection || selection === 'normal') {
+  const itemScore = getItemScore(item, selection)
+
+  if (itemScore === null) {
     return 0
   }
 
-  if (selection === 'problem') {
-    return getAbsoluteScore(item.kind === 'status' ? item.score : 0)
-  }
-
-  if (selection === 'uncheckable') {
-    return getAbsoluteScore(item.uncheckableScore)
-  }
-
-  if (selection === 'missing') {
-    return item.supportsMissing ? getAbsoluteScore(item.missingScore) : 0
-  }
-
-  if (item.kind === 'choice') {
-    return getAbsoluteScore(
-      item.options.find((option) => option.value === selection)?.score
-    )
-  }
-
-  return 0
+  return Number((item.weight - itemScore).toFixed(3))
 }
 
 const getSearchSource = (item: ChecklistItem) =>
@@ -110,23 +150,44 @@ const getSearchSource = (item: ChecklistItem) =>
     .join(' ')
     .toLowerCase()
 
-const selectedVetoItems = computed(() => vetoItems.filter((item) => vetoStates[item.id]))
+const selectedManualVetoItems = computed(() => vetoItems.filter((item) => vetoStates[item.id]))
 
-const selectedVetoLabels = computed(() => selectedVetoItems.value.map((item) => item.label))
+const selectedChecklistVetoEntries = computed(() =>
+  checklistItems.flatMap((item) => {
+    const selection = itemSelections[item.id]
 
-const hasVeto = computed(() => selectedVetoItems.value.length > 0)
+    if (!selection || !isVetoSelection(item, selection)) {
+      return []
+    }
 
-const isDeductionEntry = (
-  entry: DeductionEntry | null
-): entry is DeductionEntry => entry !== null
+    return [
+      {
+        id: item.id,
+        label: `${item.title}：${getSelectionLabel(item, selection)}`
+      }
+    ]
+  })
+)
+
+const selectedVetoLabels = computed(() => [
+  ...selectedChecklistVetoEntries.value.map((item) => item.label),
+  ...selectedManualVetoItems.value.map((item) => item.label)
+])
+
+const hasVeto = computed(
+  () => selectedChecklistVetoEntries.value.length > 0 || selectedManualVetoItems.value.length > 0
+)
+
+const isDeductionEntry = (entry: DeductionEntry | null): entry is DeductionEntry => entry !== null
 
 const deductionEntries = computed<DeductionEntry[]>(() =>
   checklistItems
     .map((item) => {
       const selection = itemSelections[item.id]
       const deduction = getDeductionForSelection(item, selection)
+      const vetoSelection = selection ? isVetoSelection(item, selection) : false
 
-      if (!selection || deduction === 0) {
+      if (!selection || (deduction === 0 && !vetoSelection)) {
         return null
       }
 
@@ -136,7 +197,8 @@ const deductionEntries = computed<DeductionEntry[]>(() =>
         title: item.title,
         selectedLabel: getSelectionLabel(item, selection),
         deduction,
-        how: item.how
+        how: item.how,
+        isVeto: vetoSelection
       }
 
       if (item.why) {
@@ -149,23 +211,85 @@ const deductionEntries = computed<DeductionEntry[]>(() =>
 )
 
 const totalDeduction = computed(() =>
-  deductionEntries.value.reduce((sum, entry) => sum + entry.deduction, 0)
+  Number(deductionEntries.value.reduce((sum, entry) => sum + entry.deduction, 0).toFixed(3))
 )
 
-const score = computed(() => {
+const qualityScore = computed(() => {
   if (hasVeto.value) {
     return 0
   }
 
-  return Math.max(0, baseScore - totalDeduction.value)
+  const total = checklistItems.reduce((sum, item) => {
+    const selection = itemSelections[item.id]
+    const itemScore = getItemScore(item, selection)
+    return sum + (itemScore ?? 0)
+  }, 0)
+
+  return Number(Math.min(baseScore, total).toFixed(1))
+})
+
+const rentAmount = computed(() => parseAmount(selectedHouse.value?.rent))
+const budgetAmount = computed(() => parseAmount(selectedHouse.value?.budget))
+
+const rentRatio = computed(() => {
+  const rent = rentAmount.value
+  const budget = budgetAmount.value
+
+  if (rent === null || budget === null || budget <= 0) {
+    return null
+  }
+
+  return Number((rent / budget).toFixed(3))
+})
+
+const rentScore = computed<number | null>(() => {
+  const ratio = rentRatio.value
+
+  if (ratio === null) {
+    return null
+  }
+
+  if (ratio <= 0.9) {
+    return 100
+  }
+
+  if (ratio <= 1) {
+    return 90
+  }
+
+  if (ratio <= 1.1) {
+    return 80
+  }
+
+  if (ratio <= 1.2) {
+    return 65
+  }
+
+  if (ratio <= 1.3) {
+    return 50
+  }
+
+  return 30
+})
+
+const finalScore = computed(() => {
+  if (hasVeto.value) {
+    return 0
+  }
+
+  if (rentScore.value === null) {
+    return qualityScore.value
+  }
+
+  return Number((qualityScore.value * qualityWeight + rentScore.value * rentWeight).toFixed(1))
 })
 
 const scoreColor = computed<ScoreTone>(() => {
-  if (score.value >= 90) {
+  if (finalScore.value >= 85) {
     return 'success'
   }
 
-  if (score.value >= 70) {
+  if (finalScore.value >= 65) {
     return 'warning'
   }
 
@@ -173,48 +297,80 @@ const scoreColor = computed<ScoreTone>(() => {
 })
 
 const recommendation = computed(() => {
-  if (hasVeto.value || score.value < 50) {
+  if (hasVeto.value) {
     return {
       stars: '★☆☆☆☆',
       label: '不要租',
-      description: '一票否决或高风险问题已出现，继续考虑的意义不大。',
+      description: '已命中一票否决项，最终分直接归零，不建议继续推进。',
       tone: 'danger' as const
     }
   }
 
-  if (score.value >= 92) {
+  if (qualityScore.value < 60 || finalScore.value < 65) {
+    return {
+      stars: '★★☆☆☆',
+      label: '不推荐',
+      description:
+        rentScore.value === null
+          ? '当前按看房质量判断已偏弱，建议先补全月租目标后再综合比较。'
+          : '看房质量或月租匹配度偏弱，综合下来不建议优先选择。',
+      tone: 'danger' as const
+    }
+  }
+
+  if (finalScore.value >= 85 && qualityScore.value >= 75) {
     return {
       stars: '★★★★★',
       label: '推荐租',
-      description: '整体状态较稳，关键功能和基础条件都比较可靠。',
+      description:
+        rentScore.value === null
+          ? '当前质量分表现稳定，若月租也合适，可以作为优先候选。'
+          : '房屋质量和月租匹配度都比较好，是当前更值得优先考虑的房源。',
       tone: 'success' as const
     }
   }
 
-  if (score.value >= 80) {
+  if (finalScore.value >= 75) {
     return {
       stars: '★★★★☆',
-      label: '可以考虑',
-      description: '有少量风险点，但仍在可接受范围内。',
+      label: '可以租',
+      description:
+        rentScore.value === null
+          ? '质量表现尚可，补全月租目标后会得到更完整的结论。'
+          : '整体可接受，少量问题仍在合理范围内，建议结合地段进一步判断。',
       tone: 'success' as const
-    }
-  }
-
-  if (score.value >= 65) {
-    return {
-      stars: '★★★☆☆',
-      label: '谨慎考虑',
-      description: '问题已经开始累积，建议结合价格和地段谨慎判断。',
-      tone: 'warning' as const
     }
   }
 
   return {
-    stars: '★★☆☆☆',
-    label: '不推荐',
-    description: '扣分较多，后续使用成本和沟通成本可能都不低。',
-    tone: 'danger' as const
+    stars: '★★★☆☆',
+    label: '谨慎租',
+    description:
+      rentScore.value === null
+        ? '当前按质量分看处于边缘区间，建议补全月租目标后再决定。'
+        : '房屋质量或月租其一已经开始拖后腿，建议和其他房源横向比较后再决定。',
+    tone: 'warning' as const
   }
+})
+
+const rentSummary = computed(() => {
+  if (!selectedHouse.value) {
+    return '未选择房屋'
+  }
+
+  return `月租 ${selectedHouse.value.rent || '未填写'} / 目标月租 ${selectedHouse.value.budget || '未填写'}`
+})
+
+const formulaText = computed(() => {
+  if (hasVeto.value) {
+    return '命中一票否决，最终分 = 0'
+  }
+
+  if (rentScore.value === null) {
+    return `未填写目标月租，当前最终分暂按看房质量分 ${formatScore(qualityScore.value)} 计算`
+  }
+
+  return `最终分 = 看房质量分 ${formatScore(qualityScore.value)} × 75% + 租金分 ${formatScore(rentScore.value)} × 25% = ${formatScore(finalScore.value)}`
 })
 
 const filteredGroups = computed(() => {
@@ -275,13 +431,35 @@ const toggleAllCategories = () => {
   })
 }
 
-const resetChecklist = () => {
+const restoreChecklistState = () => {
+  const nextSelections = {
+    ...createEmptySelectionState(),
+    ...(selectedHouse.value?.inspectionSelections ?? {})
+  }
+  const nextVetoStates = {
+    ...createEmptyVetoState(),
+    ...(selectedHouse.value?.inspectionVetoStates ?? {})
+  }
+
   checklistItems.forEach((item) => {
-    itemSelections[item.id] = null
+    itemSelections[item.id] = nextSelections[item.id] ?? null
   })
 
   vetoItems.forEach((item) => {
-    vetoStates[item.id] = false
+    vetoStates[item.id] = nextVetoStates[item.id] ?? false
+  })
+}
+
+const resetChecklist = () => {
+  const emptySelections = createEmptySelectionState()
+  const emptyVetoStates = createEmptyVetoState()
+
+  checklistItems.forEach((item) => {
+    itemSelections[item.id] = emptySelections[item.id]
+  })
+
+  vetoItems.forEach((item) => {
+    vetoStates[item.id] = emptyVetoStates[item.id]
   })
 
   categoryOrder.forEach((category) => {
@@ -296,25 +474,51 @@ const goToHouseManager = () => {
 }
 
 watch(
-  [selectedHouse, score, answeredItemCount, hasVeto, recommendation],
-  ([house, currentScore, currentAnsweredCount, currentHasVeto, currentRecommendation]) => {
+  () => selectedHouse.value?.id ?? null,
+  () => {
+    restoreChecklistState()
+  },
+  { immediate: true }
+)
+
+watch(
+  [selectedHouse, qualityScore, rentScore, finalScore, answeredItemCount, hasVeto, recommendation],
+  ([
+    house,
+    currentQualityScore,
+    currentRentScore,
+    currentFinalScore,
+    currentAnsweredCount,
+    currentHasVeto,
+    currentRecommendation
+  ]) => {
     if (!house) {
       return
     }
 
     if (!currentHasVeto && currentAnsweredCount === 0) {
       updateHouseInspection(house.id, {
+        qualityScore: null,
+        rentScore: null,
+        finalScore: null,
         inspectionScore: null,
         inspectionRecommendation: '',
-        inspectionAnsweredCount: 0
+        inspectionAnsweredCount: 0,
+        inspectionSelections: createEmptySelectionState(),
+        inspectionVetoStates: createEmptyVetoState()
       })
       return
     }
 
     updateHouseInspection(house.id, {
-      inspectionScore: currentScore,
-      inspectionRecommendation: currentHasVeto ? '不要租' : currentRecommendation.label,
-      inspectionAnsweredCount: currentAnsweredCount
+      qualityScore: currentQualityScore,
+      rentScore: currentRentScore,
+      finalScore: currentFinalScore,
+      inspectionScore: currentFinalScore,
+      inspectionRecommendation: currentRecommendation.label,
+      inspectionAnsweredCount: currentAnsweredCount,
+      inspectionSelections: { ...itemSelections },
+      inspectionVetoStates: { ...vetoStates }
     })
   },
   { immediate: true }
@@ -341,6 +545,18 @@ watch(
             <strong>{{ selectedHouse.rent || '未填写' }}</strong>
           </div>
           <div class="house-summary-item">
+            <span class="house-summary-label">目标月租</span>
+            <strong>{{ selectedHouse.budget || '未填写' }}</strong>
+          </div>
+          <div class="house-summary-item">
+            <span class="house-summary-label">租金分</span>
+            <strong>{{ rentScore === null ? '--' : formatScore(rentScore) }}</strong>
+          </div>
+          <div class="house-summary-item">
+            <span class="house-summary-label">公式</span>
+            <strong>{{ formulaText }}</strong>
+          </div>
+          <div class="house-summary-item">
             <span class="house-summary-label">房东</span>
             <strong>{{ selectedHouse.landlord || '未填写' }}</strong>
           </div>
@@ -356,10 +572,14 @@ watch(
       </el-card>
 
       <HeaderScore
-        :score-display="formatScore(score)"
+        :score-display="formatScore(finalScore)"
         :score-color="scoreColor"
-        :recommendation="hasVeto ? '建议：不要租' : recommendation.label"
-        :progress-percentage="score"
+        :recommendation="`建议：${recommendation.label}`"
+        :progress-percentage="finalScore"
+        :quality-score-display="formatScore(qualityScore)"
+        :rent-score-display="formatScore(rentScore)"
+        :rent-summary="rentSummary"
+        :formula-text="formulaText"
         :search-keyword="searchKeyword"
         :visible-item-count="visibleItemCount"
         :answered-item-count="answeredItemCount"
@@ -434,6 +654,7 @@ watch(
           <DeductionPanel
             :entries="deductionEntries"
             :total-deduction-display="formatScore(totalDeduction)"
+            :quality-score-display="formatScore(qualityScore)"
             :has-veto="hasVeto"
             :veto-labels="selectedVetoLabels"
             :answered-item-count="answeredItemCount"
@@ -443,7 +664,11 @@ watch(
       </div>
 
       <FinalResult
-        :score-display="formatScore(score)"
+        :score-display="formatScore(finalScore)"
+        :quality-score-display="formatScore(qualityScore)"
+        :rent-score-display="formatScore(rentScore)"
+        :rent-summary="rentSummary"
+        :formula-text="formulaText"
         :stars="recommendation.stars"
         :label="recommendation.label"
         :description="recommendation.description"
