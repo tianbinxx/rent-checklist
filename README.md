@@ -65,39 +65,6 @@ npm run build
 npm run test
 ```
 
-## 静态部署兼容性
-
-- 本项目已调整为适合静态单页托管：
-- 构建资源路径使用相对路径，适合 GitHub Pages、Cloudflare Pages 和本地直接打开 `dist/index.html`
-- 路由使用 Hash 模式，不依赖服务端回退规则，避免静态托管刷新 404
-- 数据保存在浏览器 `localStorage`，不依赖后端接口
-
-## 部署到 Cloudflare Pages
-
-- 推荐使用 Cloudflare Pages，而不是 Workers + Wrangler 的自动框架适配
-- 构建配置如下：
-  - Framework preset: `None` 或 `Vite`
-  - Build command: `npm run build`
-  - Build output directory: `dist`
-  - Node version: `20`
-- 部署完成后直接访问分配的域名即可
-
-## 部署到 GitHub Pages
-
-- 仓库中已包含 GitHub Actions 工作流：
-  - [.github/workflows/deploy-pages.yml](file:///c:/Users/tianbin/Desktop/checklist/.github/workflows/deploy-pages.yml)
-- 使用方式：
-1. 将仓库推送到 GitHub
-2. 进入 GitHub 仓库设置 `Settings -> Pages`
-3. 在 `Build and deployment` 中将 `Source` 设为 `GitHub Actions`
-4. 推送到 `main` 分支后会自动构建并部署
-
-## 直接离线打开
-
-- 构建后可直接打开 [dist/index.html](file:///c:/Users/tianbin/Desktop/checklist/dist/index.html)
-- 页面路由会以 `#/houses`、`#/checklist` 的形式工作
-- 房屋数据仍会保存在当前浏览器的本地存储中
-
 ## 使用流程
 
 1. 进入房屋管理页，新建一套或多套房屋

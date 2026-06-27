@@ -1,4 +1,4 @@
-import { computed, ref, watch } from 'vue'
+﻿import { computed, ref, watch } from 'vue'
 
 import type { HouseRecord } from '../types'
 
@@ -141,8 +141,18 @@ export const updateHouseInspection = (
     return
   }
 
+  const currentHouse = houses.value[currentIndex]
+  const hasChanged =
+    currentHouse.inspectionScore !== payload.inspectionScore ||
+    currentHouse.inspectionRecommendation !== payload.inspectionRecommendation ||
+    currentHouse.inspectionAnsweredCount !== payload.inspectionAnsweredCount
+
+  if (!hasChanged) {
+    return
+  }
+
   houses.value[currentIndex] = {
-    ...houses.value[currentIndex],
+    ...currentHouse,
     ...payload
   }
 }
@@ -158,3 +168,4 @@ export const resetHouseStore = () => {
   window.localStorage.removeItem(HOUSES_STORAGE_KEY)
   window.localStorage.removeItem(SELECTED_HOUSE_STORAGE_KEY)
 }
+
