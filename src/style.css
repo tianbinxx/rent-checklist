@@ -424,6 +424,10 @@ svg {
   gap: 14px;
 }
 
+.house-form {
+  flex-direction: column;
+}
+
 .house-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -431,14 +435,18 @@ svg {
 
 .house-form .el-form-item {
   margin-bottom: 0;
+  width: 100%;
+  min-width: 0;
 }
 
 .house-form-split {
   align-items: flex-start;
+  width: 100%;
 }
 
 .house-form-split .el-form-item {
   flex: 1 1 0;
+  min-width: 0;
 }
 
 .house-form-actions {
