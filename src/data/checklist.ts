@@ -109,7 +109,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'environment-building',
     kind: 'status',
     category: '环境',
-    weight: 1,
+    weight: 0.75,
     title: '楼道与公共区域卫生是否过关',
     how: '观察电梯口、楼道、门口垃圾和扶手区域，是否长期堆物、脏乱或有明显污渍。',
     why: '公共区域状态通常能反映整体维护水平。'
@@ -128,7 +128,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'room-light',
     kind: 'status',
     category: '房间',
-    weight: 1.5,
+    weight: 1,
     title: '采光是否充足',
     how: '白天拉开窗帘，站在房间中间看是否需要立刻开灯才能看清环境。',
     why: '自然光差会明显影响居住舒适度。'
@@ -201,7 +201,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'furniture-desk',
     kind: 'status',
     category: '家具',
-    weight: 2,
+    weight: 1.5,
     title: '书桌是否配置且尺寸够用',
     how: '观察桌面是否能放下电脑和基本物品，并轻按桌角确认是否稳固。',
     why: '桌子属于可替代项，但过小或不稳会影响办公和吃饭。'
@@ -220,29 +220,29 @@ export const checklistItems: ChecklistItem[] = [
     id: 'appliance-fridge-brand',
     kind: 'status',
     category: '家电',
-    weight: 2.5,
+    weight: 3,
     title: '冰箱是否配置且属于常见品牌',
     brandReferences: COMMON_APPLIANCE_BRANDS,
     how: '查看冰箱门体或侧边品牌标识，如果品牌不认识，建议立即搜索确认。',
-    why: '冰箱是高频连续使用家电，品牌和稳定性会长期影响体验。'
+    why: '冰箱是高频连续使用家电，品牌、压缩机品质和运行噪声都会长期影响生活。'
   },
   {
     id: 'appliance-fridge-power',
     kind: 'status',
     category: '家电',
-    weight: 3.5,
+    weight: 4.5,
     title: '冰箱能否正常通电并启动',
     how: '打开冰箱门看内部照明，贴近机身听是否有启动声，确认并非完全断电。',
-    why: '无法启动通常意味着需要维修或更换。'
+    why: '除了可用性，还要关注运行时的噪声和震动，冰箱异常启动声会长期影响休息。'
   },
   {
     id: 'appliance-fridge-position',
     kind: 'choice',
     category: '家电',
-    weight: 3.5,
+    weight: 5,
     title: '冰箱摆放位置是否合理',
     how: '看冰箱实际放在哪里，重点留意是否紧挨睡眠区域。',
-    why: '冰箱压缩机长期工作，若放在卧室，噪音和震动都可能持续影响睡眠，权重应明显提高。',
+    why: '冰箱压缩机长期工作，若放在卧室，噪音和震动都可能持续影响睡眠，这一项应作为高权重处理。',
     options: [
       {
         value: 'kitchen',
@@ -395,7 +395,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'kitchen-grease',
     kind: 'status',
     category: '厨房',
-    weight: 0.5,
+    weight: 0.25,
     title: '厨房是否存在明显油污',
     how: '看灶台、墙砖、油烟机外壳和橱柜把手，是否有厚重油渍或长期未清洁痕迹。',
     why: '明显油污说明交付前清洁质量较差。'
@@ -450,7 +450,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'bath-basin-condition',
     kind: 'status',
     category: '卫生间',
-    weight: 0.5,
+    weight: 0.25,
     title: '洗手盆是否完好且使用顺手',
     how: '查看盆体是否有裂纹，再实际洗一下手，感受大小是否明显局促难用。',
     why: '洗手盆太小或有裂纹，日常使用会很不方便。'
@@ -506,7 +506,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'landlord-fee',
     kind: 'status',
     category: '房东',
-    weight: 2,
+    weight: 1.5,
     title: '房东是否愿意说明费用构成',
     how: '直接询问房租、押金、物业、水电、网络等费用，观察对方是否说得清楚。',
     why: '费用解释含糊，后续容易产生额外争议。'
@@ -515,7 +515,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'landlord-repair',
     kind: 'status',
     category: '房东',
-    weight: 1,
+    weight: 0.5,
     title: '房东是否愿意说明维修责任',
     how: '直接问空调、热水器、门锁等故障由谁维修，是否能明确回答。',
     why: '维修责任不清晰，入住后最容易扯皮。'
@@ -533,7 +533,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'landlord-inventory',
     kind: 'status',
     category: '房东',
-    weight: 0.5,
+    weight: 0.25,
     title: '是否能提供明确交付清单',
     how: '询问是否有家具电器清单或交付明细，确认不是口头含糊承诺。',
     why: '有交付清单更方便后续核对设备责任。'
