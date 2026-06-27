@@ -116,6 +116,10 @@ const selectedVetoLabels = computed(() => selectedVetoItems.value.map((item) => 
 
 const hasVeto = computed(() => selectedVetoItems.value.length > 0)
 
+const isDeductionEntry = (
+  entry: DeductionEntry | null
+): entry is DeductionEntry => entry !== null
+
 const deductionEntries = computed<DeductionEntry[]>(() =>
   checklistItems
     .map((item) => {
@@ -126,17 +130,22 @@ const deductionEntries = computed<DeductionEntry[]>(() =>
         return null
       }
 
-      return {
+      const entry: DeductionEntry = {
         id: item.id,
         category: item.category,
         title: item.title,
         selectedLabel: getSelectionLabel(item, selection),
         deduction,
-        how: item.how,
-        why: item.why
+        how: item.how
       }
+
+      if (item.why) {
+        entry.why = item.why
+      }
+
+      return entry
     })
-    .filter((entry): entry is DeductionEntry => entry !== null)
+    .filter(isDeductionEntry)
 )
 
 const totalDeduction = computed(() =>

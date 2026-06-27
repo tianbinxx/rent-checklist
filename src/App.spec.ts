@@ -33,6 +33,6 @@ describe('App 回归测试', () => {
     await nextTick()
 
     expect(wrapper.text()).toContain('100分')
-    expect(vetoInput.element).not.toBeChecked()
+    expect((vetoInput.element as HTMLInputElement).checked).toBe(false)
   })
 })

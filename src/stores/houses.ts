@@ -4,6 +4,11 @@ import type { HouseRecord } from '../types'
 
 const HOUSES_STORAGE_KEY = 'rental-checklist-houses'
 const SELECTED_HOUSE_STORAGE_KEY = 'rental-checklist-selected-house'
+type HouseFormPayload = Pick<
+  HouseRecord,
+  'name' | 'address' | 'rent' | 'landlord' | 'contact' | 'notes'
+>
+type SaveHousePayload = HouseFormPayload | (HouseFormPayload & Pick<HouseRecord, 'id'>)
 
 const canUseStorage = typeof window !== 'undefined' && typeof window.localStorage !== 'undefined'
 const createEmptyHouseDraft = (): Omit<HouseRecord, 'id'> => ({
@@ -94,7 +99,7 @@ export const hasSelectedHouse = computed(() => selectedHouse.value !== null)
 
 export const createEmptyHouseForm = () => createEmptyHouseDraft()
 
-export const saveHouse = (payload: HouseRecord | Omit<HouseRecord, 'id'>) => {
+export const saveHouse = (payload: SaveHousePayload) => {
   const id = 'id' in payload ? payload.id : createHouseId()
   const currentHouse = houses.value.find((item) => item.id === id)
   const house: HouseRecord = {
