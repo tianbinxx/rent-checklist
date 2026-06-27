@@ -1,11 +1,11 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 
 import ChecklistPage from './pages/ChecklistPage.vue'
 import HouseManagerPage from './pages/HouseManagerPage.vue'
 import { hasSelectedHouse } from './stores/houses'
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes: [
     {
       path: '/',
