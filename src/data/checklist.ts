@@ -128,7 +128,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'room-light',
     kind: 'status',
     category: '房间',
-    weight: 1,
+    weight: 0.75,
     title: '采光是否充足',
     how: '白天拉开窗帘，站在房间中间看是否需要立刻开灯才能看清环境。',
     why: '自然光差会明显影响居住舒适度。'
@@ -143,6 +143,41 @@ export const checklistItems: ChecklistItem[] = [
     why: '朝向会长期影响采光、通风、冬季保暖和整体体感，属于居住体验的底层条件。'
   },
   {
+    id: 'room-area',
+    kind: 'choice',
+    category: '房间',
+    weight: 3.5,
+    title: '房屋面积是否满足起居、收纳与活动需求',
+    how: '优先询问挂牌面积；如果没有明确数据，就现场看床、衣柜、书桌和通行空间是否会相互挤压。',
+    why: '面积会直接影响活动范围、收纳能力和长期压抑感，属于会持续影响生活体验的重要指标。',
+    options: [
+      {
+        value: 'spacious',
+        label: '宽敞',
+        factor: 1,
+        description: '通常在 20 平及以上，床、桌、衣柜和通行空间都较从容。'
+      },
+      {
+        value: 'adequate',
+        label: '够用',
+        factor: 0.8,
+        description: '通常在 15 到 20 平，基本功能都能满足，但活动空间一般。'
+      },
+      {
+        value: 'compact',
+        label: '偏小',
+        factor: 0.5,
+        description: '通常在 10 到 15 平，能住但会明显感到局促。'
+      },
+      {
+        value: 'cramped',
+        label: '狭小',
+        factor: 0.2,
+        description: '通常在 10 平以下，收纳和活动都会受到明显限制。'
+      }
+    ]
+  },
+  {
     id: 'room-window',
     kind: 'status',
     category: '房间',
@@ -155,7 +190,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'room-wall',
     kind: 'status',
     category: '房间',
-    weight: 1.5,
+    weight: 1,
     title: '墙面与顶面是否有明显裂纹或起皮',
     how: '看床头、窗边和天花板四角，是否有大面积开裂、起皮或补漆痕迹。',
     why: '表面状态差往往意味着维护不到位。'
@@ -164,7 +199,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'room-floor',
     kind: 'status',
     category: '房间',
-    weight: 1.5,
+    weight: 1,
     title: '地面是否平整牢固',
     how: '在房内来回走几步，感受是否有明显松动、鼓起或踩踏异响。',
     why: '地面问题会影响家具稳定性和日常体验。'
@@ -192,7 +227,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'furniture-wardrobe',
     kind: 'status',
     category: '家具',
-    weight: 2.5,
+    weight: 2,
     title: '衣柜是否配置且能正常使用',
     how: '打开柜门并看内部，确认有无柜体、是否卡顿、门板是否歪斜。',
     why: '衣柜缺失或损坏会影响日常收纳。'
@@ -274,7 +309,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'appliance-heater-brand',
     kind: 'status',
     category: '家电',
-    weight: 1,
+    weight: 0.75,
     title: '热水器是否配置且属于常见品牌',
     brandReferences: COMMON_APPLIANCE_BRANDS,
     how: '查看热水器机身品牌，若不熟悉，建议用手机快速确认品牌信息。',
@@ -293,7 +328,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'appliance-ac-brand',
     kind: 'status',
     category: '家电',
-    weight: 1,
+    weight: 0.75,
     title: '空调是否配置且属于常见品牌',
     brandReferences: COMMON_APPLIANCE_BRANDS,
     how: '查看空调机身品牌标识，如果不认识，可以现场搜索确认是否为常见品牌。',
@@ -312,7 +347,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'appliance-washer-brand',
     kind: 'status',
     category: '家电',
-    weight: 1,
+    weight: 0.75,
     title: '洗衣机是否配置且属于常见品牌',
     brandReferences: COMMON_APPLIANCE_BRANDS,
     how: '查看洗衣机面板或机身标签的品牌标识，不认识的品牌建议现场搜索。',
@@ -359,7 +394,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'kitchen-hood',
     kind: 'status',
     category: '厨房',
-    weight: 1.5,
+    weight: 1.25,
     title: '油烟机是否能正常工作',
     how: '按下油烟机开关键，听是否有明显启动声，并观察是否能切换档位。',
     why: '油烟机是厨房基础设备，后续使用频率高。'
@@ -377,7 +412,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'kitchen-cabinet',
     kind: 'status',
     category: '厨房',
-    weight: 1.5,
+    weight: 1.25,
     title: '橱柜内是否存在发霉或受潮痕迹',
     how: '打开橱柜门，看转角、底板和靠墙位置是否有黑点、水印或潮湿痕迹。',
     why: '橱柜受潮通常意味着厨房通风差或历史漏水。'
@@ -414,7 +449,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'bath-shower',
     kind: 'status',
     category: '卫生间',
-    weight: 1.5,
+    weight: 1.25,
     title: '花洒水压是否正常',
     how: '打开花洒约 10 秒，感受水流是否发散无力，冷热切换是否正常。',
     why: '花洒水压直接影响洗澡体验。'
@@ -524,7 +559,7 @@ export const checklistItems: ChecklistItem[] = [
     id: 'landlord-contract',
     kind: 'status',
     category: '房东',
-    weight: 1.5,
+    weight: 1.25,
     title: '合同关键条款是否表达清晰',
     how: '重点问租期、退租、违约、涨租和押金返还规则，确认对方是否能讲明白。',
     why: '合同条款不清晰会带来最大的后续纠纷风险。'
